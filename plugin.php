@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Latest Posts
+ * Plugin Name:       Latest Posts Block
  * Description:       Display and filter latest posts.
  * Requires at least: 5.7
  * Requires PHP:      7.0
@@ -20,7 +20,46 @@
  *
  * @see https://developer.wordpress.org/block-editor/tutorials/block-tutorial/writing-your-first-block-type/
  */
+function blocks_course_render_latest_posts_block($attributes) {
+	
+	
+	$args = array(
+		'posts_per_page' => $attributes['numberOfPosts'],
+		'posts_status' =>'publish'
+	);
+	$recent_posts = get_posts($args);
+
+	$posts = '<ul ' . get_block_wrapper_attributes() . '>';
+	
+	foreach($recent_posts as $post) {
+		$title = get_the_title($post);
+		$title = $title ? $title : __('(No Title)', 'latest-posts');
+		$permalink = get_permalink($post);
+		$excerpt = get_the_excerpt($post);
+
+		$posts .= '<li>';
+
+		if(	$attributes['displayFeaturedImage'] && has_post_thumbnail($post) ) {
+			$posts .= get_the_post_thumbnail($post, 'large' );
+		}
+		$posts .= '<h5><a href="' . esc_url($permalink) . '">' . $title . '</a></h5>';
+
+		$posts .= '<time datetime="' . esc_attr( get_the_date('c', $post) ) . '">' . esc_html(get_the_date('', $post)) . '</time>';
+		if(!empty($excerpt)) {
+			$posts .= '<p>' . $excerpt . '</p>';
+		}
+		
+		$posts .= '</li>';
+	}
+	
+	$posts .= '</ul>';
+
+	return $posts;
+}
+
 function blocks_course_latest_posts_block_init() {
-	register_block_type_from_metadata( __DIR__ );
+	register_block_type_from_metadata( __DIR__ , array(
+		'render_callback' => 'blocks_course_render_latest_posts_block'
+	) );
 }
 add_action( 'init', 'blocks_course_latest_posts_block_init' );
