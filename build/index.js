@@ -43,36 +43,42 @@ function Edit(_ref) {
     numberOfPosts,
     displayFeaturedImage,
     order,
-    orderBy
+    orderBy,
+    category
   } = attributes;
   const posts = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_5__.useSelect)(select => {
     return select('core').getEntityRecords('postType', 'post', {
       per_page: numberOfPosts,
       _embed: true,
       orderby: orderBy,
-      order
+      order,
+      categories: category
     });
-  }, [numberOfPosts, order, orderBy]); //console.log(posts);
-
-  const onDisplayFeaturedImageChange = value => {
-    setAttributes({
-      displayFeaturedImage: value
+  }, [numberOfPosts, order, orderBy, category]);
+  const allCats = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_5__.useSelect)(select => {
+    return select('core').getEntityRecords('taxonomy', 'category', {
+      per_page: -1
     });
-  };
+  }, []);
 
-  const onNumberOfItemsChange = value => {
+  const onCategoryChange = value => {
+    const returnCategories = value === '' ? [] : [value];
     setAttributes({
-      numberOfPosts: value
+      category: returnCategories
     });
   };
 
   return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.InspectorControls, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.ToggleControl, {
     label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Display Featured Image', 'latest-posts'),
     checked: displayFeaturedImage,
-    onChange: onDisplayFeaturedImageChange
+    onChange: value => setAttributes({
+      displayFeaturedImage: value
+    })
   }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.QueryControls, {
     numberOfItems: numberOfPosts,
-    onNumberOfItemsChange: onNumberOfItemsChange,
+    onNumberOfItemsChange: value => setAttributes({
+      numberOfPosts: value
+    }),
     maxItems: 10,
     minItems: 1,
     orderby: orderBy,
@@ -82,7 +88,10 @@ function Edit(_ref) {
     order: order,
     onOrderChange: value => setAttributes({
       order: value
-    })
+    }),
+    categoriesList: allCats,
+    selectedCategoryId: category,
+    onCategoryChange: onCategoryChange
   }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.useBlockProps)(), posts && posts.map(post => {
     const featuredImage = post._embedded && post._embedded['wp:featuredmedia'] && post._embedded['wp:featuredmedia'].length > 0 && post._embedded['wp:featuredmedia'][0];
     return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", {
@@ -133,8 +142,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": function() { return /* binding */ save; }
 /* harmony export */ });
-//import { __ } from '@wordpress/i18n';
-//import { useBlockProps } from '@wordpress/block-editor';
 function save() {
   return null;
 }

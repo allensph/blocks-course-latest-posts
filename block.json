@@ -32,6 +32,10 @@
 		"orderBy": {
 			"type": "string",
 			"default": "date"
+		},
+		"category": {
+			"type": "array",
+			"default": []
 		}
 	}
 }

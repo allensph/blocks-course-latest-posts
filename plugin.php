@@ -28,6 +28,7 @@ function blocks_course_render_latest_posts_block($attributes) {
 		'posts_status' =>'publish',
 		'order' => $attributes['order'],
 		'orderby' => $attributes['orderBy'],
+		'cat' => $attributes['category']
 	);
 	$recent_posts = get_posts($args);
 

@@ -8,7 +8,8 @@ import { useSelect } from '@wordpress/data';
 import './editor.scss';
 
 export default function Edit({ attributes, setAttributes }) {
-	const { numberOfPosts, displayFeaturedImage, order, orderBy } = attributes;
+	const { numberOfPosts, displayFeaturedImage, order, orderBy, category } =
+		attributes;
 	const posts = useSelect(
 		(select) => {
 			return select('core').getEntityRecords('postType', 'post', {
@@ -16,18 +17,21 @@ export default function Edit({ attributes, setAttributes }) {
 				_embed: true,
 				orderby: orderBy,
 				order,
+				categories: category,
 			});
 		},
-		[numberOfPosts, order, orderBy]
+		[numberOfPosts, order, orderBy, category]
 	);
 
-	//console.log(posts);
-	const onDisplayFeaturedImageChange = (value) => {
-		setAttributes({ displayFeaturedImage: value });
-	};
+	const allCats = useSelect((select) => {
+		return select('core').getEntityRecords('taxonomy', 'category', {
+			per_page: -1,
+		});
+	}, []);
 
-	const onNumberOfItemsChange = (value) => {
-		setAttributes({ numberOfPosts: value });
+	const onCategoryChange = (value) => {
+		const returnCategories = value === '' ? [] : [value];
+		setAttributes({ category: returnCategories });
 	};
 
 	return (
@@ -37,11 +41,15 @@ export default function Edit({ attributes, setAttributes }) {
 					<ToggleControl
 						label={__('Display Featured Image', 'latest-posts')}
 						checked={displayFeaturedImage}
-						onChange={onDisplayFeaturedImageChange}
+						onChange={(value) =>
+							setAttributes({ displayFeaturedImage: value })
+						}
 					/>
 					<QueryControls
 						numberOfItems={numberOfPosts}
-						onNumberOfItemsChange={onNumberOfItemsChange}
+						onNumberOfItemsChange={(value) =>
+							setAttributes({ numberOfPosts: value })
+						}
 						maxItems={10}
 						minItems={1}
 						orderby={orderBy}
@@ -52,6 +60,9 @@ export default function Edit({ attributes, setAttributes }) {
 						onOrderChange={(value) =>
 							setAttributes({ order: value })
 						}
+						categoriesList={allCats}
+						selectedCategoryId={category}
+						onCategoryChange={onCategoryChange}
 					/>
 				</PanelBody>
 			</InspectorControls>
